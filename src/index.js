@@ -23,7 +23,7 @@ app.use(cookieParser());
 // ✅ CORS middleware comes before routes!
 app.use(
   cors({
-    origin: "https://chatappsssss.netlify.app/",
+    origin: "https://chatappsssss.netlify.app",
     credentials: true,
   })
 );
