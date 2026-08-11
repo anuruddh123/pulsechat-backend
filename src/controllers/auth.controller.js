@@ -101,8 +101,21 @@ export const updateProfile = async (req, res) => {
     if (!profilePic) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
+    // Ensure Cloudinary is configured
+    const { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME } = process.env;
+    if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET || !CLOUDINARY_CLOUD_NAME) {
+      console.error("Cloudinary not configured: missing env vars");
+      return res.status(500).json({ message: "Cloudinary not configured on server" });
+    }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    let uploadResponse;
+    try {
+      uploadResponse = await cloudinary.uploader.upload(profilePic);
+    } catch (err) {
+      console.error("Cloudinary upload failed:", err);
+      return res.status(500).json({ message: "Cloudinary upload failed", error: err.message });
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { profilePic: uploadResponse.secure_url },
@@ -112,7 +125,7 @@ export const updateProfile = async (req, res) => {
     res.status(200).json(updatedUser);
   } catch (error) {
     console.log("error in update profile:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
