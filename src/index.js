@@ -23,10 +23,16 @@ app.use(cookieParser());
 // ✅ CORS middleware comes before routes!
 app.use(
   cors({
-    origin: "https://chatappsssss.netlify.app",
+    origin: process.env.FRONTEND_URL || "https://chatappsssss.netlify.app",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Authorization"],
   })
 );
+
+// Handle preflight requests for all routes
+app.options("*", cors());
 
 // ✅ Your API routes
 app.use("/api/auth", authRoutes);
